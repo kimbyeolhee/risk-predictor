@@ -1,0 +1,18 @@
+dataset:
+  visual:
+    input_size: 224 # 512
+    num_target_frames: 10 # 사용할 프레임 수
+    train:
+      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_train.csv
+      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_train.csv
+    test:
+      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_test.csv
+      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_test.csv
+
+dataloader:
+  visual:
+    batch_size: 2
+
+trainer:
+  total_epochs: 5
+  epoch_resume: 0 # 이어서 학습하고 싶다면 변경
