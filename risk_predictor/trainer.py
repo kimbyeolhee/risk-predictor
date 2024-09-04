@@ -12,7 +12,6 @@ def run(cfg):
     train_loader = data_module.train_dataloader()
 
     best_loss = 9e9
-    epoch_resume = 0
 
     for epoch in range(cfg.trainer.epoch_resume, cfg.trainer.total_epochs):
         train(train_loader, epoch, cfg.trainer.total_epochs)
