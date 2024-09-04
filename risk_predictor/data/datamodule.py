@@ -1,24 +1,29 @@
 import logging
+import os
 
 import torch
+from torch.utils.data import DataLoader
+
+from .datasets import load_dataset
 
 log = logging.getLogger(__name__)
 
-# 임의의 더미 비디오 데이터를 반환
-# 한 환자 당 영상 5개, 각 영상의 프레임 수가 각각 (120, 111, 142, 93, 64) 라고 하자.
-# 데이터 더미 생성
 
-dummy_video = [
-    torch.randn(120, 1, 512, 512), 
-    torch.randn(111, 1, 512, 512),  
-    torch.randn(142, 1, 512, 512),  
-    torch.randn(93, 1, 512, 512),   
-    torch.randn(64, 1, 512, 512)    
-]
-
+# Visual DataModule for now.
 class DataModule:
-    def __init__(self):
-        pass
+    def __init__(self, cfg):
+        self.data_cfg = cfg.dataset
+        self.dataloader_cfg = cfg.dataloader
+        self.train_loader = None
+        self.test_loader = None
 
+        # Dataset 생성
+        self.train_patient_id_csv_path = self.data_cfg.visual.train.patient_id_csv_path
+        self.train_video_csv_path = self.data_cfg.visual.train.video_csv_path
+        
     def train_dataloader(self):
-        pass
+        dataset = load_dataset("visual", self.train_patient_id_csv_path, self.train_video_csv_path, self.data_cfg)
+        print("Length of train dataset: ", len(dataset))   
+
+        self.train_loader = DataLoader(dataset, batch_size=self.dataloader_cfg.visual.batch_size)
+        return self.train_loader
