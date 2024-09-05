@@ -5,7 +5,7 @@ import os
 import torch
 from omegaconf import OmegaConf
 
-from risk_predictor import run
+from multi_modal_risk_predictor import run
 
 log = logging.getLogger(__name__)
 
