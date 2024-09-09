@@ -126,6 +126,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+kbh_venv/
 ENV/
 env.bak/
 venv.bak/
@@ -163,3 +164,4 @@ cython_debug/
 
 # datasets
 visual_datasets/
+tabular_datasets/
