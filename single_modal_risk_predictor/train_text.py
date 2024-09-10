@@ -66,18 +66,18 @@ class HierarchicalBert(nn.Module):
         self.num_labels = num_labels
 
     def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor, labels: torch.Tensor = None) -> Dict[str, torch.Tensor]:
-        batch_size, num_chunks, seq_length = input_ids.shape
-        input_ids = input_ids.view(-1, seq_length)
-        attention_mask = attention_mask.view(-1, seq_length)
+        batch_size, num_chunks, seq_length = input_ids.shape # torch.Size([2, 10, 512])
+        input_ids = input_ids.view(-1, seq_length) # torch.Size([20, 512])
+        attention_mask = attention_mask.view(-1, seq_length) # torch.Size([20, 512])
 
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        chunk_embeddings = outputs.last_hidden_state[:, 0, :]  # Use [CLS] token embedding
-        chunk_embeddings = chunk_embeddings.view(batch_size, num_chunks, -1)
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask) # torch.size([20, 512, 768])
+        chunk_embeddings = outputs.last_hidden_state[:, 0, :]  # Use [CLS] token embedding # torch.Size([20, 768])
+        chunk_embeddings = chunk_embeddings.view(batch_size, num_chunks, -1) # torch.Size([2, 10, 768])
 
-        lstm_out, _ = self.lstm(chunk_embeddings)
-        document_embedding = lstm_out[:, -1, :]  # Use last hidden state
+        lstm_out, _ = self.lstm(chunk_embeddings) # torch.Size([2, 10, 512])
+        document_embedding = lstm_out[:, -1, :]  # Use last hidden state # torch.Size([2, 512])
 
-        logits = self.classifier(document_embedding)
+        logits = self.classifier(document_embedding) # torch.Size([2, 2])
 
         loss = None
         if labels is not None:
@@ -99,7 +99,7 @@ def compute_metrics(eval_pred):
         "auc": auc
     }
 
-def main(data_path, device):
+def main(data_path):
     text_column =  '검사결과본문내용'
     label_column = 'Death'
 
@@ -122,16 +122,17 @@ def main(data_path, device):
     training_args = TrainingArguments(
         output_dir="./results",
         num_train_epochs=3,
-        per_device_train_batch_size=1,  # Reduced batch size
-        per_device_eval_batch_size=1,   # Reduced batch size
-        gradient_accumulation_steps=4,  # Gradient accumulation
+        per_device_train_batch_size=2,
+        per_device_eval_batch_size=1,
+        gradient_accumulation_steps=16,
+        learning_rate=5e-5,
         warmup_steps=500,
         weight_decay=0.01,
-        logging_dir="./logs",
+        logging_dir="./train_text_modality_only_logs",
         logging_steps=10,
         evaluation_strategy="steps",
-        eval_steps=100,
-        save_steps=100,
+        eval_steps=500,
+        save_steps=500,
         load_best_model_at_end=True,
     )
 
@@ -149,4 +150,4 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     data_path = 'C:/Users/korea/OneDrive/바탕 화면/risk-predictor/datasets/text_datasets/temp_text_data.csv'
 
-    main(data_path, device)
+    main(data_path)
