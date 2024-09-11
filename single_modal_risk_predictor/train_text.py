@@ -105,7 +105,6 @@ def main(data_path):
 
     df = pd.read_csv(data_path)
     df['Death'] = df['Death'].fillna(0)
-    df = df[:100]
 
     texts = df[text_column].tolist()
     labels = df[label_column].tolist()
