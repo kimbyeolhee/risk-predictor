@@ -1,9 +1,12 @@
+import argparse
+from omegaconf import OmegaConf
 import torch
 from torch import nn
 from transformers import BertModel, BertTokenizer, Trainer, TrainingArguments
 from torch.utils.data import Dataset, random_split
 import numpy as np
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, confusion_matrix
+from scipy.special import softmax
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 import pandas as pd
 from typing import Dict, List
 
@@ -87,11 +90,12 @@ class HierarchicalBert(nn.Module):
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
+    probabilities = softmax(logits, axis=1)[:, 1]
+    predictions = np.argmax(probabilities, axis=-1)
     
     accuracy = accuracy_score(labels, predictions)
     f1 = f1_score(labels, predictions)
-    auc = roc_auc_score(labels, predictions)
+    auc = roc_auc_score(labels, probabilities)
     
     return {
         "accuracy": accuracy,
@@ -99,11 +103,11 @@ def compute_metrics(eval_pred):
         "auc": auc
     }
 
-def main(data_path):
+def main(cfg):
     text_column =  '검사결과본문내용'
     label_column = 'Death'
 
-    df = pd.read_csv(data_path)
+    df = pd.read_csv(cfg.dataset.data_path)
     df['Death'] = df['Death'].fillna(0)
 
     texts = df[text_column].tolist()
@@ -120,12 +124,12 @@ def main(data_path):
 
     training_args = TrainingArguments(
         output_dir="./results",
-        num_train_epochs=3,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=1,
-        gradient_accumulation_steps=16,
-        learning_rate=5e-5,
-        warmup_steps=500,
+        num_train_epochs=5,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=8,
+        gradient_accumulation_steps=4,
+        learning_rate=3e-5,
+        warmup_steps=100,
         weight_decay=0.01,
         logging_dir="./train_text_modality_only_logs",
         logging_steps=10,
@@ -146,7 +150,11 @@ def main(data_path):
     trainer.train()
 
 if __name__ == "__main__":
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    data_path = 'C:/Users/korea/OneDrive/바탕 화면/risk-predictor/datasets/text_datasets/temp_text_data.csv'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", "-c", type=str, default="base_text_modal_config")
+    args , _ = parser.parse_known_args()
+    cfg = OmegaConf.load(f"./configs/{args.config}.yaml")
 
-    main(data_path)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    main(cfg)
