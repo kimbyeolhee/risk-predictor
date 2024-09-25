@@ -39,7 +39,7 @@ class VisualDataset(Dataset):
         
         videos = torch.stack(videos)
         label = torch.tensor(label, dtype=torch.float32)
-        return videos, label
+        return videos, label # (video_num, target_frame_num, 1, 224, 224), (1,)
 
 
     def _load_video(self, video_path: str):
