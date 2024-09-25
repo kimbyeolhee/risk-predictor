@@ -5,9 +5,9 @@ dataset:
     train:
       patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_train.csv
       video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_train.csv
-    test:
-      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_test.csv
-      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_test.csv
+    valid:
+      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_train.csv
+      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_train.csv
 
 dataloader:
   visual:
@@ -16,3 +16,11 @@ dataloader:
 trainer:
   total_epochs: 5
   epoch_resume: 0 # 이어서 학습하고 싶다면 변경
+  lr: 0.001
+
+visual_encoder:
+  input_size: 224
+  num_frames: 10
+  feature_dim: 128
+  hidden_dim: 256 # lstm의 은닉 차원
+  output_dim: 128 # lstm의 출력 차원
