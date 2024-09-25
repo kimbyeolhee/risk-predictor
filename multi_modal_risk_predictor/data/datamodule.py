@@ -20,10 +20,17 @@ class DataModule:
         # Dataset 생성
         self.train_patient_id_csv_path = self.data_cfg.visual.train.patient_id_csv_path
         self.train_video_csv_path = self.data_cfg.visual.train.video_csv_path
+        self.valid_patient_id_csv_path = self.data_cfg.visual.valid.patient_id_csv_path
+        self.valid_video_csv_path = self.data_cfg.visual.valid.video_csv_path
         
     def train_dataloader(self):
         dataset = load_dataset("visual", self.train_patient_id_csv_path, self.train_video_csv_path, self.data_cfg)
-        print("Length of train dataset: ", len(dataset))   
 
         self.train_loader = DataLoader(dataset, batch_size=self.dataloader_cfg.visual.batch_size)
         return self.train_loader
+    
+    def valid_dataloader(self):
+        dataset = load_dataset("visual", self.valid_patient_id_csv_path, self.valid_video_csv_path, self.data_cfg)
+
+        self.valid_loader = DataLoader(dataset, batch_size=self.dataloader_cfg.visual.batch_size)
+        return self.valid_loader

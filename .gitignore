@@ -166,3 +166,6 @@ cython_debug/
 visual_datasets/
 tabular_datasets/
 text_datasets/
+
+# logs
+logs/
