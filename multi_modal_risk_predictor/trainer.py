@@ -24,6 +24,7 @@ def train(model, dataloader, current_epoch, total_epochs, device, criterion, opt
         videos, labels = batch # (batch_size, video_num, target_frame_num, 1, 224, 224), (batch_size, ) # ([2, 5, 10, 1, 224, 224])
 
         visual_inputs = videos.to(device)
+        labels = labels.to(device)
 
         preds = model(visual_inputs)
         loss = criterion(preds, labels)
@@ -52,6 +53,7 @@ def validate(model, dataloader, device, criterion):
             videos, labels = batch # (batch_size, video_num, target_frame_num, 1, 224, 224), (batch_size, ) # ([2, 5, 10, 1, 224, 224])
 
             visual_inputs = videos.to(device)
+            labels = labels.to(device)
 
             preds = model(visual_inputs)
             loss = criterion(preds, labels)
@@ -86,7 +88,7 @@ def run(cfg):
 
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=cfg.trainer.lr)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5)
 
     best_acc = 0.0
 
