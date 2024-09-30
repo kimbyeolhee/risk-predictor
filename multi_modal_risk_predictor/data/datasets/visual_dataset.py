@@ -63,28 +63,15 @@ class VisualDataset(Dataset):
 
         videos = [VideoLoader(path, self.transform) for path in video_pathes]
 
-        total_frames = sum(len(video) for video in videos)
-
-        combined_video = torch.zeros((1, total_frames, self.dataset_cfg.visual.input_size, self.dataset_cfg.visual.input_size))
-
-        current_frame_idx = 0
-
+        video_frames = []
         for video in videos:
-            for i in range(len(video)):
-                combined_video[:, current_frame_idx] = video[i]
-                current_frame_idx += 1
-        
+            frames = torch.stack([video[i] for i in range(len(video))])
+            video_frames.append(frames)
+
         label = torch.tensor(label, dtype=torch.float32)
 
-        return combined_video, label 
+        return video_frames, label # list[Tensor(frame_num, 1, 224, 224)], Tensor(1,)
         
-        # for path in video_pathes:
-        #     video = self._load_video(path)
-        #     videos.append(video)
-        
-        # videos = torch.stack(videos)
-        # label = torch.tensor(label, dtype=torch.float32)
-        # return videos, label # (video_num, target_frame_num, 1, 224, 224), (1,)
 
 
     # def _load_video(self, video_path: str):

@@ -30,7 +30,7 @@ def train(rank, word_size, model, dataloader, current_epoch, total_epochs, crite
     train_loss_history = []
     size = len(dataloader.dataset)
     scaler = GradScaler()
-    accumulation_steps = 4  # 그래디언트 누적 횟수
+    accumulation_steps = 8  # 그래디언트 누적 횟수
 
     scaler = GradScaler()
 
@@ -41,11 +41,12 @@ def train(rank, word_size, model, dataloader, current_epoch, total_epochs, crite
 
     model.train()
     for idx, batch in progress_bar:
-        videos, labels = batch # (batch_size, channel, total_frame_num, 224, 224), (batch_size, ) # torch.Size([1, 1, 1577, 224, 224]), torch.Size([1])
-        videos, labels = videos.to(rank), labels.to(rank)
+        videos, labels = batch # videos = list[Tensor(frame_num, 1, 224, 224)], label = Tensor(1,)
+        videos = [v.to(rank) for v in videos] # v's shape: torch.Size([1, 93, 1, 224, 224])
+        labels = labels.to(rank)
 
         with autocast(device_type="cuda"):
-            preds = model(videos) # (batch_size, )
+            preds = model(videos) 
             loss = criterion(preds, labels.float())
             loss = loss / accumulation_steps # 그래디언트 누적
 
@@ -82,7 +83,8 @@ def validate(rank, model, dataloader, criterion):
     with torch.no_grad():
         for idx, batch in progress_bar:
             videos, labels = batch # (batch_size, video_num, target_frame_num, 1, 224, 224), (batch_size, ) # ([2, 5, 10, 1, 224, 224])
-            videos, labels = videos.to(rank), labels.to(rank)
+            videos = [v.to(rank) for v in videos]
+            labels = labels.to(rank)
 
             with autocast(device_type="cuda"):
                 preds = model(videos)
@@ -124,7 +126,7 @@ def run(rank, world_size, cfg):
         train_loader = data_module.train_dataloader()
         valid_loader = data_module.valid_dataloader()
 
-        model = VisualModalRiskPredictor(cfg.visual_encoder.model_name_or_path).to(rank)
+        model = VisualModalRiskPredictor().to(rank)
         model = DDP(model, device_ids=[rank])
 
         # visual_params = cfg.visual_encoder
@@ -149,10 +151,19 @@ def run(rank, world_size, cfg):
 
             if val_acc > best_acc:
                 best_acc = val_acc
-                logger.info(f"Update new best accuracy: {best_acc}")
-                # torch.save(model.state_dict(), f"./checkpoints/{cfg.name}.pth")
+                if rank == 0:
+                    logger.info(f"Update new best accuracy: {best_acc:.2f}%")
+                    torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.module.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'scheduler_state_dict': scheduler.state_dict(),
+                        'best_acc': best_acc,
+                    }, f"./checkpoints/{cfg.name}_best.pth")
+                dist.barrier()  # 모든 프로세스가 이 지점에 도달할 때까지 대기
+        if rank == 0:
+            logger.info(f"Training completed. Best accuracy: {best_acc:.2f}%")
 
-        cleanup()
     finally:
         cleanup()
 

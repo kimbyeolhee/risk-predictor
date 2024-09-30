@@ -1,1 +1,1 @@
-from .visual_encoder import VisualEncoder
+from .visual_encoder import VisualEncoder, SpatioTemporalFeatureExtractor

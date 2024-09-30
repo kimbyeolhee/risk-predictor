@@ -1,3 +1,5 @@
+name: multi_modal_risk_predictor
+
 dataset:
   visual:
     input_size: 224 # 512
