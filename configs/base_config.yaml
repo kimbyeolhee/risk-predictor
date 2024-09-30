@@ -1,17 +1,17 @@
 dataset:
   visual:
     input_size: 224 # 512
-    num_target_frames: 10 # 사용할 프레임 수
+    num_target_frames: 30 # 사용할 프레임 수
     train:
-      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_train.csv
-      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_train.csv
+      patient_id_csv_path: /home/taejoon/HDD_18TB_2/KBH/2024/risk-predictor/datasets/visual_datasets/patient-id_label_fold_1_train.csv
+      video_csv_path: /home/taejoon/HDD_18TB_2/KBH/2024/risk-predictor/datasets/visual_datasets/video_path_fold_1_train.csv
     valid:
-      patient_id_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\patient-id_label_fold_1_train.csv
-      video_csv_path: C:\Users\korea\OneDrive\바탕 화면\risk-predictor\datasets\visual_datasets\fold_1\video_path_fold_1_train.csv
+      patient_id_csv_path: /home/taejoon/HDD_18TB_2/KBH/2024/risk-predictor/datasets/visual_datasets/patient-id_label_fold_1_train.csv
+      video_csv_path: /home/taejoon/HDD_18TB_2/KBH/2024/risk-predictor/datasets/visual_datasets/video_path_fold_1_test.csv
 
 dataloader:
   visual:
-    batch_size: 2
+    batch_size: 1
 
 trainer:
   total_epochs: 5

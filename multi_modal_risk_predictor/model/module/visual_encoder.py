@@ -20,8 +20,8 @@ class VideoFeatureExtractor(nn.Module):
         batch_size, target_frame_num, c, h, w = x.shape
         x = x.view(batch_size * target_frame_num, c, h, w)
 
-        features = self.resnet18(x)
-        features = features.view(batch_size, target_frame_num, -1)
+        features = self.resnet18(x) # features : (batch_size * target_frame_num, 512)
+        features = features.view(batch_size, target_frame_num, -1) 
 
         lstm_out, _ = self.lstm(features) # lstm_out : (batch_size, target_frame_num, hidden_dim)
 
