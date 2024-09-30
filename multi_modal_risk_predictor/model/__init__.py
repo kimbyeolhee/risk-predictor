@@ -1,1 +1,1 @@
-from .multi_modal_risk_predictor import MultiModalRiskPredictor
+from .multi_modal_risk_predictor import MultiModalRiskPredictor, VisualModalRiskPredictor
